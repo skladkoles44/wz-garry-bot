@@ -1,5 +1,3 @@
 creation_rules:
-  - path_regex: deploy/.*
-    encrypted_regex: "^(.*)$"
-    age:
-      - age1p3zxpcu6jgc2gjht53xtmusx8kln4ptcqewzl3s25ur4cfw8nf0su3cr53
+  - path_regex: deploy/\.env\.prod\.enc$
+    age: ["age1p3zxpcu6jgc2gjht53xtmusx8kln4ptcqewzl3s25ur4cfw8nf0su3cr53"]
