@@ -1,10 +1,6 @@
-/**
- * Jest 30 ESM config for wz-garry-bot
- * Без Babel: используем нативный Node ESM.
- */
 export default {
   testEnvironment: "node",
-  transform: {},                 // не трогаем код
+  transform: {}, // без Babel
   moduleNameMapper: { "^(\\.{1,2}/.*)\\.js$": "$1" },
   testMatch: ["**/__tests__/**/*.(mjs|js)", "**/?(*.)+(spec|test).(mjs|js)"],
   collectCoverage: true,
