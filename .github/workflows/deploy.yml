@@ -20,10 +20,14 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
-      cd /root/wz-garry-bot
+            cd /root/wz-garry-bot
             git fetch origin main
             git reset --hard origin/main
-            pm2 describe wz-garry >/dev/null 2>&1 && pm2 restart wz-garry || pm2 start src/index.js --name wz-garry
+            if pm2 ls | grep -qw "wz-garry"; then
+              pm2 restart wz-garry
+            else
+              pm2 start src/index.js --name wz-garry
+            fi
             pm2 save
 
       - name: "📣 Notify success (Telegram)"
@@ -34,12 +38,12 @@ jobs:
             -d parse_mode="Markdown" \
             --data-urlencode "text=✅ *WZ Garry Bot* deployed to \`${{ secrets.VPS_HOST }}\`" >/dev/null || true
 
-      - name: "📤 Post README_short.md to Telegram"
+      - name: "📄 Post README_short.md to Telegram"
         if: ${{ success() }}
         run: |
           if [ -f README_short.md ]; then
             curl -s -F chat_id="${{ secrets.TG_CHAT_ID }}" \
-                 -F document=@README_short.md \
-                 -F caption="WZ Garry Bot — README_short.md (commit $GITHUB_SHA)" \
-                 "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendDocument" >/dev/null || true
+              -F document=@README_short.md \
+              -F caption="WZ Garry Bot — README_short.md (commit $GITHUB_SHA)" \
+              "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendDocument" >/dev/null || true
           fi
