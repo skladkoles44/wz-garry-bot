@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-botdb}
+      POSTGRES_USER: ${POSTGRES_USER:-botuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d:ro
+    networks:
+      - bot_network
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - bot_network
+
+  bot:
+    build: .
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}
+    depends_on:
+      - postgres_db
+      - redis
+    networks:
+      - bot_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  bot_network:
+    driver: bridge
