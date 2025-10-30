@@ -1,0 +1,20 @@
+# Node/npm
+node_modules/
+npm-debug.log*
+package-lock.json  # optional: lock в .env, если хочешь
+
+# dotenv
+.env
+.env.local
+.env.*.local
+
+# logs and data
+logs/
+*.log
+
+# prometheus data
+prometheus/data/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,11 @@
+
+# Пример инициализации Postgres (если не указан)
+services:
+  postgres_db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: bot_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: example
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d:ro
