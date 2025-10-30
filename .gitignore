@@ -1,2 +1,10 @@
+node_modules/
+coverage/
+dist/
+.tmp/
+.cache/
 .env
-*.dec
+.env.*
+.DS_Store
+npm-debug.log*
+yarn-error.log
