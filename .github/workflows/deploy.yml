@@ -1,15 +1,18 @@
+name: "🚀 Deploy to VPS"
+
 on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: 🧰 Checkout repo
+      - name: "🧰 Checkout repo"
         uses: actions/checkout@v4
 
-      - name: 🔐 Deploy via SSH
+      - name: "🔐 Deploy via SSH"
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -17,35 +20,26 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
-            cd /root/wz-garry-bot && \
-            git fetch origin main && \
-            git reset --hard origin/main && \
-            pm2 describe wz-garry >/dev/null 2>&1 && pm2 restart wz-garry || pm2 start src/index.js --name wz-garry && \
+            cd /root/wz-garry-bot
+            git fetch origin main
+            git reset --hard origin/main
+            pm2 describe wz-garry >/dev/null 2>&1 && pm2 restart wz-garry || pm2 start src/index.js --name wz-garry
             pm2 save
 
-      - name: 📣 Notify success (Telegram)
+      - name: "📣 Notify success (Telegram)"
         if: ${{ success() }}
         run: |
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TG_CHAT_ID }}" \
             -d parse_mode="Markdown" \
-            --data-urlencode "text=✅ *WZ Garry Bot* deployed to \`89.111.171.170\`"
+            --data-urlencode "text=✅ *WZ Garry Bot* deployed to \`${{ secrets.VPS_HOST }}\`" >/dev/null || true
 
-      - name: 📣 Notify failure (Telegram)
-        if: ${{ failure() }}
+      - name: "📤 Post README_short.md to Telegram"
+        if: ${{ success() }}
         run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TG_CHAT_ID }}" \
-            -d parse_mode="Markdown" \
-            --data-urlencode "text=❌ *WZ Garry Bot* deploy failed. Check GitHub Actions logs."
-  - name: "📤 Post README_short.md to Telegram"
-    if: ${{ success() }}
-    run: |
-      if [ ! -f README_short.md ]; then
-        echo "skip: README_short.md not found"
-        exit 0
-      fi
-      curl -s -F chat_id="${{ secrets.TG_CHAT_ID }}" \
-           -F document=@README_short.md \
-           -F caption="WZ Garry Bot — README_short.md (commit $GITHUB_SHA)" \
-           "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendDocument" >/dev/null || true
+          if [ -f README_short.md ]; then
+            curl -s -F chat_id="${{ secrets.TG_CHAT_ID }}" \
+                 -F document=@README_short.md \
+                 -F caption="WZ Garry Bot — README_short.md (commit $GITHUB_SHA)" \
+                 "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendDocument" >/dev/null || true
+          fi
