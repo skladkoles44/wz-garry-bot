@@ -1,2 +1,14 @@
+# Dependencies
+node_modules/
+
+# Environment
 .env
-*.dec
+.env.*
+deploy/.env.prod.enc
+
+# Logs
+*.log
+.husky.log
+
+# System
+.DS_Store
