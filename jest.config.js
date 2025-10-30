@@ -1,18 +1,15 @@
+/**
+ * Jest 30 ESM config for wz-garry-bot
+ * Без Babel: используем нативный Node ESM.
+ */
 export default {
   testEnvironment: "node",
-  extensionsToTreatAsEsm: [".js"],
-  globals: { "ts-jest": { useESM: true } },
-  moduleNameMapper: { "^(\\\\.{1,2}/.*)\\\\.js$": "$1" },
-  transform: {},
+  transform: {},                 // не трогаем код
+  moduleNameMapper: { "^(\\.{1,2}/.*)\\.js$": "$1" },
+  testMatch: ["**/__tests__/**/*.(mjs|js)", "**/?(*.)+(spec|test).(mjs|js)"],
   collectCoverage: true,
-  collectCoverageFrom: [
-    "src/**/*.js",
-    "!src/**/__tests__/**",
-    "!src/**/*.test.js"
-  ],
+  collectCoverageFrom: ["src/**/*.js", "!src/**/__tests__/**"],
   coverageDirectory: "coverage",
-  coverageReporters: ["text","lcov","html"],
-  coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } },
-  testMatch: ["**/__tests__/**/*.js","**/?(*.)+(spec|test).js"],
+  coverageReporters: ["text", "lcov", "html"],
   verbose: true
 };

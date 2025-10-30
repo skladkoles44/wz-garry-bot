@@ -12,7 +12,7 @@
     "lint": "eslint . --config .eslintrc.json",
     "lint:fix": "eslint . --fix --config .eslintrc.json",
     "lint:md": "markdownlint '**/*.md' --config .markdownlint.json || true",
-    "test": "jest --ci",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --ci",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "build": "echo 'No build step needed'",
