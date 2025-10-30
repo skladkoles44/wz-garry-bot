@@ -7,19 +7,36 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: 🧰 Checkout repo
         uses: actions/checkout@v4
 
-      - name: 🔐 Connect and deploy to VPS
+      - name: 🔐 Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /root/wz-garry-bot git pull 
-            origin main pm2 restart 
-            wz-garry || pm2 start 
-            src/index.js --name wz-garry
+            set -e
+            cd /root/wz-garry-bot && \
+            git fetch origin main && \
+            git reset --hard origin/main && \
+            pm2 describe wz-garry >/dev/null 2>&1 && pm2 restart wz-garry || pm2 start src/index.js --name wz-garry && \
+            pm2 save
+
+      - name: 📣 Notify success (Telegram)
+        if: ${{ success() }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TG_CHAT_ID }}" \
+            -d parse_mode="Markdown" \
+            --data-urlencode "text=✅ *WZ Garry Bot* deployed to \`89.111.171.170\`"
+
+      - name: 📣 Notify failure (Telegram)
+        if: ${{ failure() }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TG_CHAT_ID }}" \
+            -d parse_mode="Markdown" \
+            --data-urlencode "text=❌ *WZ Garry Bot* deploy failed. Check GitHub Actions logs."
