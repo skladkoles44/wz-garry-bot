@@ -1,0 +1,18 @@
+#!/bin/sh
+LOG="/root/wz-garry-bot/.husky.log"
+TS() { date -Iseconds; }
+
+MSG_FILE="$1"
+SIGNED_OFF="Signed-off-by: jaCKdaniels 🥃 <jaCKdaniels@AgeToPerfect.ion>"
+
+echo "[$(TS)] prepare-commit-msg started for $MSG_FILE" >> "$LOG"
+
+# Если подпись уже есть — выходим
+if grep -qF "$SIGNED_OFF" "$MSG_FILE"; then
+  echo "[$(TS)] signature already present, skipping" >> "$LOG"
+  exit 0
+fi
+
+# Иначе добавляем подпись в конец
+printf "\n%s\n" "$SIGNED_OFF" >> "$MSG_FILE"
+echo "[$(TS)] signature appended" >> "$LOG"

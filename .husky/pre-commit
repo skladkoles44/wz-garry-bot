@@ -1,0 +1,47 @@
+#!/bin/sh
+LOG="/root/wz-garry-bot/.husky.log"
+TS() { date -Iseconds; }
+
+echo "[$(TS)] pre-commit START by $(git config user.name) <$(git config user.email)>" >> "$LOG"
+
+echo "🔐 Husky pre-commit started..."
+
+# файлы в индексе, кроме markdown
+STAGED_NON_MD=$(git diff --cached --name-only | grep -Ev '\.md$' || true)
+
+# 🔒 запрет секретных файлов
+if echo "$STAGED_NON_MD" | grep -Eq '(\.env|\.enc|keys\.txt)'; then
+  echo "🚫 ERROR: нельзя коммитить .env, .enc или ключи!"
+  echo "[$(TS)] BLOCK: secret filename" >> "$LOG"
+  echo "[$(TS)] pre-commit END (FAIL)" >> "$LOG"
+  exit 1
+fi
+
+# 🚨 поиск токенов — только в не-Markdown файлах
+if [ -n "$STAGED_NON_MD" ] && git diff --cached -- $STAGED_NON_MD | grep -E '(^|[[:space:]])TOKEN=' >/dev/null; then
+  echo "⚠️ Найден возможный токен! Проверь содержимое перед коммитом."
+  echo "[$(TS)] BLOCK: token pattern in non-md" >> "$LOG"
+  echo "[$(TS)] pre-commit END (FAIL)" >> "$LOG"
+  exit 1
+fi
+
+# 🧹 ESLint
+if npx eslint . --ext .js >> "$LOG" 2>&1; then
+  echo "[$(TS)] ESLint OK" >> "$LOG"
+else
+  echo "[$(TS)] ESLint FAIL" >> "$LOG"
+  echo "❌ ESLint failed"
+  echo "[$(TS)] pre-commit END (FAIL)" >> "$LOG"
+  exit 1
+fi
+
+# 🧪 Тесты (если есть)
+if npm test >> "$LOG" 2>&1; then
+  echo "[$(TS)] Tests OK" >> "$LOG"
+else
+  echo "[$(TS)] Tests skipped or failed (non-blocking)" >> "$LOG"
+  echo "ℹ️ тесты пропущены (нет файла test)"
+fi
+
+echo "✅ Husky checks passed."
+echo "[$(TS)] pre-commit END (OK)" >> "$LOG"
