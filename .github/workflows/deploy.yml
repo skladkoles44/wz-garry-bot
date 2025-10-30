@@ -69,3 +69,19 @@ jobs:
             -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
             -d parse_mode="HTML" \
             --data-urlencode "text=${MSG}"
+  - name: 📦 Notify release info (Telegram, env)
+    if: always()
+    env:
+      TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TG_CHAT:  ${{ secrets.TELEGRAM_CHAT_ID }}
+    run: |
+      set -e
+      COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+      SHORT_SHA="${GITHUB_SHA::7}"
+      WHEN="$(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+      MSG="✅ <b>WZ Garry Bot deployed</b>\n<b>Repo:</b> ${GITHUB_REPOSITORY}\n<b>Commit:</b> ${SHORT_SHA}\n<b>By:</b> ${GITHUB_ACTOR}\n<b>Run:</b> ${GITHUB_RUN_NUMBER}\n<b>At:</b> ${WHEN}\n${COMMIT_URL}"
+
+      curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+        -d chat_id="${TG_CHAT}" \
+        -d parse_mode="HTML" \
+        --data-urlencode "text=${MSG}"
