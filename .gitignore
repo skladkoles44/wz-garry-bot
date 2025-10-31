@@ -14,3 +14,7 @@ deploy/.env.prod.enc
 .DS_Store
 .github/workflows/deploy.yml.bak*
 .github/workflows/deploy.yml.new
+*.log
+job_logs*
+*.zip
+deploy*.log

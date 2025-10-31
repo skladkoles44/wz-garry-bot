@@ -1,0 +1,29 @@
+{
+  "project": "WZ Garry Bot",
+  "release": "v1.5.7",
+  "approved_at": "2025-10-29",
+  "ru_only_compliance": true,
+  "mvp_scope": ["security-plan","infra-skeleton","stages","scripts"],
+  "stages": [
+    {"id":"01_infra_setup","status":"ready","artifacts":["docker-compose.yml","Dockerfile","nginx/","redis/"]},
+    {"id":"02_security_compliance","status":"ready","artifacts":["docs/security_plan_v1.5.7.md","pg_hba policy","redis ACL"]},
+    {"id":"03_testing","status":"ready","artifacts":["smoke tests","health endpoint"]},
+    {"id":"04_audit","status":"ready","artifacts":["audit_log table","retention 90d"]},
+    {"id":"05_maintenance","status":"ready","artifacts":["backup policy","restore drill"]}
+  ],
+  "security": {
+    "webhook_secret": "required",
+    "redis_acl": "required",
+    "pg_auth": "scram-sha-256",
+    "pii_masking_logs": true,
+    "backup_daily": true,
+    "retention_days": 90
+  },
+  "checklist": {
+    "env_secrets_ok": false,
+    "webhook_tls_ok": false,
+    "db_acl_ok": false,
+    "redis_acl_ok": false,
+    "backup_verified": false
+  }
+}
